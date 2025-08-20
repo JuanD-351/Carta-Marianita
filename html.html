@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cartita para ti 🌸</title>
+    <style>
+    :root{
+      --bg1:#0f1021;
+      --bg2:#1b1c3a;
+      --accent:#ffb3c1;
+      --accent-2:#c7e1ff;
+      --ink:#f8f8ff;
+      --paper:#fffaf5;
+      --shadow:rgba(0,0,0,.22);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 70% -10%, var(--bg2), transparent 60%),
+                  radial-gradient(900px 600px at -10% 110%, #131433, transparent 60%),
+                  linear-gradient(160deg, var(--bg1), #141527);
+      color:var(--ink);
+      font-family: system-ui,-apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      overflow-x:hidden;
+    }
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      position:relative;
+    }
+
+    /* Pétalos */ 
+    .petal{
+      position:fixed; top:-10vh;
+      width:14px; height:10px;
+      background: radial-gradient(60% 70% at 50% 50%, var(--accent), var(--accent-2));
+      opacity:.8;
+      border-radius:60% 40% 60% 40% / 70% 40% 60% 30%;
+      box-shadow:0 2px 8px var(--shadow);
+      animation: fall linear infinite;
+      transform: rotate(20deg);
+      z-index:0;
+    }
+    @keyframes fall{
+      0%{transform:translate3d(0,-10vh,0) rotate(0deg)}
+      100%{transform:translate3d(var(--dx,0px),110vh,0) rotate(360deg)}
+    }
+
+    /* Sobre */
+    .envelope{
+      position:relative;
+      width:min(560px, 92vw);
+      height:360px;
+      perspective:1400px;
+      z-index:2;
+      overflow:hidden;
+      border-radius:18px;
+    }
+    .flap{
+      position:absolute; inset:0;
+      border-radius:18px;
+      background: linear-gradient(135deg, #1b1830, #211d3f);
+      box-shadow: 0 20px 40px -12px var(--shadow),
+                  inset 0 0 0 2px rgba(255,255,255,.05);
+      transform-style:preserve-3d;
+      transition: transform .8s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;
+      transform-origin: top center;
+      z-index:2; /* tapa la carta cuando está cerrado */
+    }
+    .flap::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(120px 80px at 30% 20%, rgba(255,179,193,.18), transparent 70%),
+        radial-gradient(160px 100px at 75% 80%, rgba(199,225,255,.18), transparent 70%);
+      border-radius:18px;
+    }  
+    .stamp{
+      position:absolute; right:18px; top:18px;
+      width:72px; height:72px; border-radius:12px;
+      background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent));
+      -webkit-mask: radial-gradient(closest-side, #000 92%, transparent 98%) 0 0/16px 16px;
+              mask: radial-gradient(closest-side, #000 92%, transparent 98%) 0 0/16px 16px;
+      box-shadow: inset 0 0 0 3px rgba(0,0,0,.25);
+    } 
+    .title{ position:absolute; left:24px; bottom:22px; font-weight:700; letter-spacing:.3px; color:#fdf2f8; text-shadow:0 2px 12px rgba(0,0,0,.35)}
+    .hint{ position:absolute; left:24px; top:22px; font-size:.95rem; opacity:.8; color:#eaeaff}
+    .btn{ 
+      position:absolute; left:24px; right:24px; bottom:18px;
+      display:inline-flex; gap:10px; justify-content:center; align-items:center;
+      padding:12px 16px;
+      background:linear-gradient(180deg, #ffd6df, #ffb3c1);
+      color:#3a0a17; font-weight:700; border:none; border-radius:999px;
+      box-shadow:0 10px 20px -8px rgba(255,179,193,.6);
+      cursor:pointer; transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
+      z-index:3;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow:0 14px 28px -10px rgba(255,179,193,.65)}
+    .btn:active{ transform: translateY(0) scale(.98) }
+    /* Pop up de la cancion */
+    .music-text {
+        position: fixed;
+        top: 18%; 
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: linear-gradient(180deg, rgba(255, 179, 193, 0.6), rgba(199, 225, 255, 0.6)); /* Fondo con transparencia */
+        color: #2f1c21;
+        padding: 16px 24px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Arial;
+        box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 10;
+    }
+    .music-text.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .heart {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 8.6rem; /* Tamaño medio grande */
+        color: var(--accent); /* Usa el color --accent (#ffb3c1) */
+        text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 3; /* Asegura que esté por encima del flap pero debajo del botón */
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    /* Ocultar el corazón cuando el sobre está abierto */
+    .envelope.open .heart {
+        opacity: 0; 
+        visibility: hidden;
+    }
+    /* Carta interior */
+    .letter{
+      position:absolute; 
+        inset:14px;
+        background: radial-gradient(220% 100% at 50% 0%, rgba(255, 255, 255, 0.8), rgba(255, 245, 240, 0.8)); /* Fondo con transparencia */
+        border-radius:16px;
+        box-shadow: 0 18px 36px -12px var(--shadow),
+                    inset 0 0 0 2px rgba(0,0,0,.07);
+        padding:28px 24px;
+        color:#33211f;
+        overflow-y: auto; /* ✅ permite scroll si el texto es demasiado largo */
+        max-height: calc(100% - 40px); /* ✅ asegura que no desborde el sobre */
+        will-change: transform, opacity;
+        z-index:1;
+
+        /* FIX: empezar escondida dentro del sobre */
+        transform: translateY(105%) rotateX(12deg);
+        opacity:0;
+        transition: transform .85s cubic-bezier(.2,.8,.2,1), opacity .35s ease;
+        transform-origin: top center;
+    }
+    /* Estado abierto */
+    .open .flap{ transform: rotateX(-165deg) translateY(-8px) }
+    .open .letter{ transform: translateY(0) rotateX(0deg); opacity:1; z-index:3 }
+
+    .letter h2{ margin:.2rem 0 0; font-size:1.6rem; color:#2a1a18}
+    .letter h3{ margin:.2rem 0 1rem; font-weight:500; color:#6b4a48}
+    .hr{ height:2px; width:100%; background: linear-gradient(90deg, transparent, #ffd6df, #c7e1ff, transparent); margin:14px 0 18px; opacity:.8}
+    .body{ font-size:1.02rem; line-height:1.7; white-space:pre-wrap}
+    .sig{ margin-top:18px; font-weight:700; color:#2c2020}
+
+    .toolbar{ position:fixed; right:16px; top:16px; display:flex; gap:10px; z-index:5}
+    .iconbtn{
+      padding:10px 12px; border-radius:999px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.1); color:#fff; backdrop-filter: blur(6px);
+      box-shadow:0 8px 18px -10px var(--shadow), inset 0 0 0 1px rgba(255,255,255,.18);
+      transition: transform .15s ease, background .2s ease;
+    }
+    .iconbtn:hover{ transform:translateY(-1px); background:rgba(255,255,255,.16)}
+    .tag{ display:inline-block; padding:6px 10px; border-radius:999px; font-size:.85rem; font-weight:600; color:#2f1c21; background:linear-gradient(180deg, #ffe4ea, #ffd6df); margin-top:8px}
+
+    @media (max-width:480px){
+      .envelope{ height:340px}
+      .letter{ padding:22px 18px}
+    }
+    .envelope:not(.open) .letter{ pointer-events:none }
+  </style>
+</head>
+<body>
+
+  <template id="data">
+    {
+      "destinataria": "Para: Marianita 💗",
+      "titulo": "Cartita porque sí jeje y porque te quiero mucho",
+      "subtitulo": "Para mi linda humanita",
+      "mensaje": "Se que hemos pasado por mucho en este ultimo mes y pues hubo momentos malos y buenos, mas malos diria yo jsjs pero siento que ahora, estos momentos que estamos pasando y viviendo, siento que opaca todo eso y pues, lo que quiero decir es... Gracias. Gracias por darme esta oportunidad, gracias por volver a confiar en mi, gracias por volver a quererme, se que te es complicado ahora pero se que lo lograremos, porque confio en nosotros, en esto que hemos formado, confio en ti y de verdad, no puedo parar de decirte las gracias y tambien de decirte lo muchisimo que te quiero, porque es muyucho jsjs pero si, nunca lo deje de hacer y nunca lo hare porque te dije desde hace tiempo y te lo digo ahora, quiero que seas tu, no me rendire contigo y lo demostre creo jsjs pero de verdad te quiero, eres mi 2da persona mas importante para mi, no quiero que nunca te pase nada malo, quiero que seas la princesita mas feliz del mundo, porque lo mereces, nada menos que eso; y te juro que hare todo lo que este a mi alcance para dartelo, no pienso defraudarte y que pases denuevo por eso, te quiero mucho y, denuevo jsjs, gracias, por todo y espero pasar mucho mas tiempo contigo, hasta cumplir todo esos planes que tenemos, en especial en Febrero no? Para celebrar tu traslado exitoso, porque se que lo haras bien, siempre lo has demostado y estoy muy orgulloso de ti, de todo lo haces y de la gran mujer que eres. Nunca cambies Marianita, para mi y todos, eres perfecta tal y como eres y asi y como eres es por lo cual estoy loco por ti, no sabes de verdad cuantas ganas tengo de volver a vernos, esta vez ya mas calmados, mejor planeado y que todo ira bien, te quiero mucho mi princesita y recuerda que siempre tendras a este humanito para ti y para lo que necesites, te estare apoyando pase lo que pase, quiero que seas la mujer exitosa que se que seras y te ayudare a lograrlo.",
+      "firma": "— Tu menso"
+    }
+  </template>
+
+  <div class="toolbar">
+    <button class="iconbtn" id="musicBtn" aria-label="Música">🎵</button>
+    <button class="iconbtn" id="openBtn" aria-label="Abrir carta">💌</button>
+  </div>
+
+  <div class="wrap">
+    <div class="envelope" id="envelope">
+      <div class="flap">
+        <div class="stamp" aria-hidden="true"></div>
+        <div class="hint">💗</div>
+        <div class="title" id="toName">Para: …</div>
+        <button class="btn" id="openBtn2">Abrir carta ✨</button>
+        <div class="heart">💖</div> <!-- Nuevo: Corazón en el centro -->
+      </div>
+
+      <section class="letter" id="letter" aria-live="polite">
+        <span class="tag" id="tag"></span>
+        <h2 id="title">Título</h2>
+        <h3 id="subtitle">Subtítulo</h3>
+        <div class="hr"></div>
+        <p class="body" id="bodyText">Mensaje…</p>
+        <p class="sig" id="sign">— Firma</p>
+      </section>
+    </div>
+  </div>
+
+  <audio id="bgm" loop preload="auto">
+    <source src="minibo.mp3" type="audio/mpeg">
+  </audio>
+
+    <div class="wrap">
+        <div class="envelope" id="envelope">...</div>
+        <div class="music-text" id="musicText">Solo dire que vi que reposteaste esto y pues, tambien me gusta la cancion asique que mejor que dedicarsela a mi niña bonita 💕</div>
+    </div>
+
+
+    <script> 
+    // datos del template
+    function getData(){
+      try{
+        const raw = document.getElementById('data').innerHTML.trim();
+        return JSON.parse(raw);
+      }catch(e){
+        return {
+          destinataria: "Para: Mi persona favorita",
+          titulo: "A veces el amor es volver a empezar",
+          subtitulo: "Gracias por quedarte.",
+          mensaje: "Mensaje de ejemplo…",
+          firma: "— Con cariño"
+        }
+      } 
+    }
+
+    // Pétalos 
+    const NUM = 28;
+    for(let i=0;i<NUM;i++){
+      const s = document.createElement('span');
+      s.className = 'petal';
+      s.style.left = (Math.random()*100) + 'vw';
+      s.style.animationDuration = (8 + Math.random()*8) + 's';
+      s.style.animationDelay = (-Math.random()*10) + 's';
+      s.style.setProperty('--dx', ((Math.random()-.5)*120)+'px');
+      document.body.appendChild(s);
+    }
+
+    const env = document.getElementById('envelope');
+    const openBtn = document.getElementById('openBtn');
+    const openBtn2 = document.getElementById('openBtn2');
+    const musicBtn = document.getElementById('musicBtn');
+    const audio = document.getElementById('bgm');
+    audio.volume = 0.1; // Volumen al 50%
+    
+    const {destinataria, titulo, subtitulo, mensaje, firma} = getData();
+
+    // Inyectar textos
+    document.getElementById('toName').textContent = destinataria;
+    document.getElementById('title').textContent = titulo;
+    document.getElementById('subtitle').textContent = subtitulo || "";
+    document.getElementById('tag').textContent = "Peonías & Lirios";
+    document.getElementById('bodyText').textContent = mensaje;
+    document.getElementById('sign').textContent = firma;
+
+    function toggleOpen(){
+      env.classList.toggle('open');
+    }
+    openBtn.addEventListener('click', toggleOpen);
+    openBtn2.addEventListener('click', toggleOpen);
+    //env.addEventListener('click', (e)=>{
+    //  if(e.target.closest('.letter')) return; // no cerrar si haces click dentro
+    //  toggleOpen();
+    //});
+
+    // Música opcional
+    let playing = false;
+    const musicText = document.getElementById('musicText');
+    musicBtn.addEventListener('click', async () => {
+  try {
+    if (!playing) {
+      await audio.play();
+      playing = true;
+      musicBtn.textContent = '⏸️';
+      musicText.classList.add('show');
+      setTimeout(() => {
+        musicText.classList.remove('show');
+      }, 5000); // 
+    } else {
+      audio.pause();
+      playing = false;
+      musicBtn.textContent = '🎵';
+      musicText.classList.remove('show');
+    }
+  } catch (err) {
+    alert('Agrega una canción en la etiqueta <audio> para usar la música 🙂');
+  }
+});
+    
+  </script>
+</body>
+</html>
+
